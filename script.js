@@ -5,7 +5,8 @@
     bfs: "BFS · Amplitud: explora por capas. Encuentra una ruta con el menor número de pasos cuando cada movimiento cuenta igual, pero no usa los pesos para decidir.",
     dfs: "DFS · Profundidad: avanza todo lo posible por una rama antes de retroceder. Puede encontrar una ruta rápido, pero no garantiza la más corta ni la más barata.",
     ucs: "Coste uniforme · Dijkstra: siempre expande primero el camino acumulado más barato. Con pesos no negativos garantiza el menor coste.",
-    astar: "A* · Heurística: combina el coste acumulado con una estimación Manhattan hasta la meta. Con esta heurística y costes no negativos obtiene un camino óptimo."
+    astar: "A* · Heurística: combina el coste acumulado con una estimación Manhattan hasta la meta. Con esta heurística y costes no negativos obtiene un camino óptimo.",
+    bidir: "Búsqueda bidireccional · Mejora extra: ejecuta una búsqueda desde el inicio y otra desde las metas hasta que ambas fronteras se encuentran. Reduce la profundidad de búsqueda en muchos mapas sin pesos, pero no optimiza costes ponderados."
   };
 
   let N = 20, grid = [], start = null, goals = new Map(), selectedAlgo = "bfs", selectedTool = "start";
@@ -102,7 +103,68 @@
     const path=[]; let x=goal; while(x!=null){path.push(x);x=parent.get(x)??null;} return path.reverse();
   }
 
+
+  function bidirectionalSearch(){
+    if(start==null||!goals.size)return {error:"Falta colocar inicio o meta.",visited:[],path:[],cost:null,steps:null,maxFrontier:0,discovered:0,frontierSizes:[]};
+    if(grid[start]?.wall)return {error:"El inicio no puede ser un obstáculo.",visited:[],path:[],cost:null,steps:null,maxFrontier:0,discovered:0,frontierSizes:[]};
+
+    const qStart=[start], qGoal=[...goals.keys()];
+    const parentStart=new Map([[start,null]]), parentGoal=new Map();
+    const seenStart=new Set([start]), seenGoal=new Set(goals.keys());
+    const visitedOrder=[], visitedSet=new Set(), frontierSizes=[];
+    let meet=null, maxFrontier=qStart.length+qGoal.length;
+
+    for(const g of goals.keys()) parentGoal.set(g,null);
+
+    const markVisited=(id)=>{ if(!visitedSet.has(id)){ visitedSet.add(id); visitedOrder.push(id); } };
+
+    while(qStart.length && qGoal.length && meet==null){
+      let layer=qStart.length;
+      while(layer-- && meet==null){
+        const id=qStart.shift(); markVisited(id);
+        if(seenGoal.has(id)){ meet=id; break; }
+        for(const nb of neighbors(id)){
+          if(grid[nb].wall||seenStart.has(nb))continue;
+          seenStart.add(nb); parentStart.set(nb,id); qStart.push(nb);
+          if(seenGoal.has(nb)){ meet=nb; break; }
+        }
+      }
+      maxFrontier=Math.max(maxFrontier,qStart.length+qGoal.length);
+      frontierSizes.push(qStart.length+qGoal.length);
+      if(meet!=null)break;
+
+      layer=qGoal.length;
+      while(layer-- && meet==null){
+        const id=qGoal.shift(); markVisited(id);
+        if(seenStart.has(id)){ meet=id; break; }
+        for(const nb of neighbors(id)){
+          if(grid[nb].wall||seenGoal.has(nb))continue;
+          seenGoal.add(nb); parentGoal.set(nb,id); qGoal.push(nb);
+          if(seenStart.has(nb)){ meet=nb; break; }
+        }
+      }
+      maxFrontier=Math.max(maxFrontier,qStart.length+qGoal.length);
+      frontierSizes.push(qStart.length+qGoal.length);
+    }
+
+    if(meet==null){
+      return {visited:visitedOrder,path:[],cost:null,steps:null,maxFrontier,discovered:new Set([...seenStart,...seenGoal]).size,frontierSizes,error:null};
+    }
+
+    const left=[]; let x=meet;
+    while(x!=null){ left.push(x); x=parentStart.get(x)??null; }
+    left.reverse();
+
+    const right=[]; x=parentGoal.get(meet)??null;
+    while(x!=null){ right.push(x); x=parentGoal.get(x)??null; }
+
+    const path=left.concat(right);
+    let cost=0; for(let i=1;i<path.length;i++) cost+=stepCost(path[i]);
+    return {visited:visitedOrder,path,cost,steps:path.length-1,maxFrontier,discovered:new Set([...seenStart,...seenGoal]).size,frontierSizes,error:null,goal:path[path.length-1]};
+  }
+
   function search(algo, exploreAll=false){
+    if(algo==="bidir") return bidirectionalSearch();
     if(start==null||!goals.size)return {error:"Falta colocar inicio o meta.",visited:[],path:[],cost:null,steps:null,maxFrontier:0,discovered:0,frontierSizes:[]};
     if(grid[start]?.wall)return {error:"El inicio no puede ser un obstáculo.",visited:[],path:[],cost:null,steps:null,maxFrontier:0,discovered:0,frontierSizes:[]};
 
@@ -194,7 +256,7 @@
       return av-bv;
     });
     const box=$("#ranking");
-    if(!arr.length){box.textContent="Los cuatro algoritmos se compararán al simular.";return}
+    if(!arr.length){box.textContent="Los cuatro algoritmos obligatorios se compararán al simular.";return}
     box.innerHTML="";
     arr.forEach((x,i)=>{
       const d=document.createElement("div");d.className="rank-row";
@@ -232,28 +294,52 @@
     while(r!==br){r+=Math.sign(br-r);grid[cellId(r,c)].wall=false}
   }
   function scenario(type){
+    N=20;
+    $("#sizeInput").value=N; $("#sizeLabel").textContent=N; $("#sizeLabel2").textContent=N;
     randomEmpty();
+
     if(type==="steps"){
-      start=cellId(1,1);const g=cellId(N-2,N-2);goals.set(g,0);
-      for(let r=2;r<N-2;r++){const c=Math.floor(N/2);if(r!==Math.floor(N/3))grid[cellId(r,c)].wall=true}
-      for(let i=0;i<Math.floor(N*N*.08);i++){const id=randomCell(new Set([start,g]));if(!grid[id].wall)grid[id].wall=true}
-      carveManhattan(start,g);
+      start=cellId(18,1);
+      const g=cellId(1,18); goals.set(g,0);
+      [[5,4],[9,14],[13,7],[16,16]].forEach(([c,gap])=>{
+        for(let r=2;r<18;r++){
+          if(r!==gap && r!==gap+1) grid[cellId(r,c)].wall=true;
+        }
+      });
     }else if(type==="expensive"){
-      const r=Math.floor(N/2);start=cellId(r,1);const g=cellId(r,N-2);goals.set(g,0);
-      for(let c=2;c<N-2;c++)grid[cellId(r,c)].weight=30;
-      for(let c=1;c<N-1;c++){grid[cellId(Math.max(1,r-3),c)].wall=false}
-      for(let rr=Math.max(1,r-3);rr<=r;rr++){grid[cellId(rr,1)].wall=false;grid[cellId(rr,N-2)].wall=false}
-      for(let i=0;i<Math.floor(N*N*.05);i++){const id=randomCell(new Set([start,g]));if(rc(id)[0]!==r)grid[id].wall=Math.random()<.45}
+      const r=10; start=cellId(r,1); const g=cellId(r,18); goals.set(g,0);
+      grid.forEach(c=>{c.wall=true;c.weight=1;});
+      for(let c=1;c<=18;c++) grid[cellId(r,c)].wall=false;
+      for(let c=2;c<18;c++) grid[cellId(r,c)].weight=30;
+      for(let rr=7;rr<=10;rr++){
+        grid[cellId(rr,1)].wall=false;
+        grid[cellId(rr,18)].wall=false;
+      }
+      for(let c=1;c<=18;c++) grid[cellId(7,c)].wall=false;
     }else if(type==="goals"){
-      const r=Math.floor(N/2);start=cellId(r,2);const near=cellId(r,Math.min(N-3,Math.floor(N*.35)));const far=cellId(Math.max(1,r-5),N-3);
-      goals.set(near,55);goals.set(far,0);carveManhattan(start,near);carveManhattan(start,far);
-      for(let i=0;i<Math.floor(N*N*.08);i++){const id=randomCell(new Set([start,near,far]));if(!goals.has(id))grid[id].wall=Math.random()<.6}
-      carveManhattan(start,near);carveManhattan(start,far);
+      grid.forEach(c=>{c.wall=true;c.weight=1;});
+      start=cellId(10,2);
+      const near=cellId(10,7), far=cellId(5,17);
+      goals.set(near,55); goals.set(far,0);
+      for(let c=2;c<=7;c++) grid[cellId(10,c)].wall=false;
+      for(let r=5;r<=10;r++) grid[cellId(r,2)].wall=false;
+      for(let c=2;c<=17;c++) grid[cellId(5,c)].wall=false;
+      for(let r=6;r<10;r++){
+        [4,8,12,15].forEach(c=>grid[cellId(r,c)].wall=false);
+      }
     }else if(type==="blocked"){
-      const r=Math.floor(N/2);start=cellId(Math.max(1,r-3),2);const g=cellId(Math.min(N-2,r+3),N-3);goals.set(g,0);
-      const barrier=Math.floor(N/2);for(let c=0;c<N;c++)grid[cellId(barrier,c)].wall=true;
+      start=cellId(5,2);
+      const g=cellId(15,17); goals.set(g,0);
+      for(let c=0;c<N;c++) grid[cellId(10,c)].wall=true;
+      [[3,5],[4,5],[6,8],[7,8],[2,12],[8,14],[12,3],[13,3],[14,7],[16,10],[17,10],[12,15]].forEach(([r,c])=>{
+        grid[cellId(r,c)].wall=true;
+      });
     }
-    refreshCells();clearVisuals();
+
+    renderGrid();
+    clearVisuals();
+    compare();
+    $("#status").textContent="Escenario reproducible cargado";
   }
 
   function updateAlgoText(){$("#algoDescription").textContent=descriptions[selectedAlgo]}
