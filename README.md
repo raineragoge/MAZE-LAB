@@ -12,7 +12,7 @@ El objetivo del proyecto es entender de forma visual cómo funcionan varios algo
 - **CSS**: diseño visual, distribución de paneles y estilos del tablero.
 - **JavaScript**: lógica del programa, algoritmos, edición del mapa, métricas y animaciones.
 - **GitHub**: control de versiones y almacenamiento del código.
-- **Netlify**: despliegue final del proyecto. *(Pendiente de enlazar en esta versión del README).*
+- **Netlify**: despliegue público del proyecto.
 
 ## Algoritmos implementados
 
@@ -127,12 +127,11 @@ https://github.com/raineragoge/MAZE-LAB
 
 ## Despliegue
 
-**Netlify:** pendiente de añadir.
+**Netlify:** https://mazeprojectlab.netlify.app
 
 ## Limitaciones actuales
 
 - Los cuatro escenarios deben convertirse todavía en configuraciones totalmente reproducibles para la entrega final.
-- El enlace definitivo de Netlify aún no está añadido al README.
 - Las capturas de las pruebas se incorporarán a la documentación final.
 
 ## Estado del proyecto
