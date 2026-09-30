@@ -11,7 +11,7 @@
     <div>
       <div class="eyebrow">▦ MAZE LAB · LABORATORIO DE BÚSQUEDA INTERACTIVO / 01</div>
       <h1>ENCUENTRA TU CAMINO</h1>
-      <p>Un laberinto. Cuatro maneras de pensar. Diseña, explora y compara.</p>
+      <p>Un laberinto. Cuatro algoritmos base y una mejora extra. Diseña, explora y compara.</p>
     </div>
     <button id="themeBtn" class="ghost">☀ Modo claro</button>
   </header>
@@ -26,6 +26,7 @@
           <button class="algo" data-algo="dfs"><b>DFS</b><span>Profundidad</span></button>
           <button class="algo" data-algo="ucs"><b>Coste uniforme</b><span>Dijkstra</span></button>
           <button class="algo" data-algo="astar"><b>A*</b><span>Heurística</span></button>
+          <button class="algo extra" data-algo="bidir"><b>Bidireccional</b><span>Mejora extra</span></button>
         </div>
         <div id="algoDescription" class="info-box"></div>
       </section>
@@ -33,7 +34,7 @@
       <section>
         <div class="section-label">02 / PONLO A PRUEBA</div>
         <h2>Escenarios</h2>
-        <p class="muted">Pulsa para crear un nuevo mapa aleatorio con esta condición.</p>
+        <p class="muted">Pulsa para cargar un mapa fijo y reproducible con esta condición.</p>
         <div class="scenario-list">
           <button data-scenario="steps">↗ <b>Menos pasos</b><span>Sin pesos</span></button>
           <button data-scenario="expensive">🚦 <b>Pesos</b><span>Atajo caro</span></button>
@@ -146,7 +147,7 @@
             <option value="explored">Menos casillas exploradas</option>
           </select>
         </label>
-        <div id="ranking" class="ranking">Los cuatro algoritmos se compararán al simular.</div>
+        <div id="ranking" class="ranking">Los cuatro algoritmos obligatorios se compararán al simular.</div>
         <p class="muted">BFS y DFS no usan el peso para decidir; coste uniforme y A* sí.</p>
       </section>
 
