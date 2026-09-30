@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maze Lab · Algoritmos en movimiento</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">▦ MAZE LAB · LABORATORIO DE BÚSQUEDA INTERACTIVO / 01</div>
+      <h1>ENCUENTRA TU CAMINO</h1>
+      <p>Un laberinto. Cuatro maneras de pensar. Diseña, explora y compara.</p>
+    </div>
+    <button id="themeBtn" class="ghost">☀ Modo claro</button>
+  </header>
+
+  <main class="layout">
+    <aside class="panel left-panel">
+      <section>
+        <div class="section-label">01 / ELIGE CÓMO BUSCAR</div>
+        <h2>Algoritmos</h2>
+        <div class="algo-grid">
+          <button class="algo active" data-algo="bfs"><b>BFS</b><span>Amplitud</span></button>
+          <button class="algo" data-algo="dfs"><b>DFS</b><span>Profundidad</span></button>
+          <button class="algo" data-algo="ucs"><b>Coste uniforme</b><span>Dijkstra</span></button>
+          <button class="algo" data-algo="astar"><b>A*</b><span>Heurística</span></button>
+        </div>
+        <div id="algoDescription" class="info-box"></div>
+      </section>
+
+      <section>
+        <div class="section-label">02 / PONLO A PRUEBA</div>
+        <h2>Escenarios</h2>
+        <p class="muted">Pulsa para crear un nuevo mapa aleatorio con esta condición.</p>
+        <div class="scenario-list">
+          <button data-scenario="steps">↗ <b>Menos pasos</b><span>Sin pesos</span></button>
+          <button data-scenario="expensive">🚦 <b>Pesos</b><span>Atajo caro</span></button>
+          <button data-scenario="goals">🏁 <b>Metas con coste</b><span>Cerca no siempre es mejor</span></button>
+          <button data-scenario="blocked">⛔ <b>Sin solución</b><span>Barrera completa</span></button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="center">
+      <div class="panel circuit-panel">
+        <div class="circuit-head">
+          <div>
+            <div class="section-label">TU CIRCUITO</div>
+            <h2><span id="sizeLabel">20</span> × <span id="sizeLabel2">20</span></h2>
+          </div>
+          <button id="randomBtn" class="ghost">⤨ Aleatorio</button>
+        </div>
+
+        <div class="tool-row">
+          <button class="tool active" data-tool="start">🚘 Inicio</button>
+          <button class="tool" data-tool="goal">🏁 Meta</button>
+          <button class="tool" data-tool="wall">⛔ Obstáculo</button>
+          <button class="tool" data-tool="weight">🚦 Peso</button>
+          <button class="tool" data-tool="erase">⌫ Borrar</button>
+        </div>
+
+        <div class="options">
+          <label>
+            Obstáculo
+            <select id="wallIcon">
+              <option value="🏢">🏢 Edificio</option>
+              <option value="⛰️">⛰️ Montaña</option>
+              <option value="⛔">⛔ Corte de vía</option>
+            </select>
+          </label>
+          <label>
+            Peso
+            <input id="weightValue" type="number" min="2" max="99" value="5">
+          </label>
+          <button id="removeWeightsBtn" class="ghost">− Quitar peso</button>
+        </div>
+
+        <div id="gridWrap" class="grid-wrap">
+          <div id="grid" class="grid" aria-label="Tablero del laberinto"></div>
+          <div id="car" class="car hidden" aria-hidden="true">🚘</div>
+        </div>
+
+        <div class="legend">
+          <span>🚘 Inicio</span><span>🏁 Meta</span><span>⛔ Obstáculo</span>
+          <span>🚦 Peso</span><span class="dot explored"></span> Explorada
+          <span class="dot frontier"></span> Frontera
+          <span class="dot road"></span> Carretera
+        </div>
+
+        <div class="weights-key">
+          <b>Pesos de conducción · transitables</b>
+          <span>🚧 2–9 Obras</span>
+          <span>🚶 10–24 Paso peatonal</span>
+          <span>🚦 25–49 Semáforo</span>
+          <span>⛰️ 50–74 Montaña</span>
+          <span>🚗 75–99 Atasco</span>
+        </div>
+
+        <div class="controls">
+          <button id="simulateBtn" class="primary">▶ Simular</button>
+          <button id="pauseBtn">Ⅱ Pausar</button>
+          <button id="stopBtn">■ Detener</button>
+          <button id="resetBtn">↺ Reiniciar</button>
+        </div>
+
+        <div class="sliders">
+          <label>Velocidad
+            <input id="speed" type="range" min="1" max="100" value="40">
+            <span id="speedText">40 casillas/s</span>
+          </label>
+          <label>Tamaño
+            <input id="sizeInput" type="number" min="5" max="60" value="20">
+            <button id="applySizeBtn">Aplicar</button>
+          </label>
+          <label class="check"><input id="exploreAll" type="checkbox"> Explorar todo lo accesible</label>
+          <button id="clearBtn" class="ghost">Vaciar mapa</button>
+        </div>
+
+        <p class="help">Haz clic o arrastra para dibujar. Flechas para moverte por el mapa y espacio para editar.</p>
+      </div>
+    </section>
+
+    <aside class="panel right-panel">
+      <section>
+        <h2>Métricas</h2>
+        <div id="status" class="status">Listo</div>
+        <div class="metrics">
+          <div><span>Casillas exploradas</span><b id="mExplored">0 / 400</b></div>
+          <div><span>Tiempo animación</span><b id="mTime">0.0 s</b></div>
+          <div><span>Coste del camino</span><b id="mCost">—</b></div>
+          <div><span>Pasos a la meta</span><b id="mSteps">—</b></div>
+          <div><span>En la frontera</span><b id="mFrontier">0</b></div>
+          <div><span>Casillas descubiertas</span><b id="mDiscovered">0</b></div>
+          <div><span>Máxima frontera</span><b id="mMaxFrontier">0</b></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">¿QUIÉN LLEGA MEJOR? · MISMO MAPA</div>
+        <p class="muted">Comparación hasta la primera meta.</p>
+        <label>Ordenar por
+          <select id="rankBy">
+            <option value="cost">Menor coste del camino</option>
+            <option value="explored">Menos casillas exploradas</option>
+          </select>
+        </label>
+        <div id="ranking" class="ranking">Los cuatro algoritmos se compararán al simular.</div>
+        <p class="muted">BFS y DFS no usan el peso para decidir; coste uniforme y A* sí.</p>
+      </section>
+
+      <section>
+        <div class="section-label">♫ DRIVE RADIO · ELECTRO ORIGINAL</div>
+        <button id="musicBtn" class="primary">▶ Reproducir música</button>
+        <select id="trackSelect">
+          <option value="128">01 · Pulso nocturno · 128 BPM</option>
+          <option value="136">02 · Autopista de neón · 136 BPM</option>
+          <option value="144">03 · Velocidad orbital · 144 BPM</option>
+        </select>
+        <label>Volumen <input id="volume" type="range" min="0" max="100" value="24"></label>
+        <label class="check"><input id="winSound" type="checkbox" checked> Sonido de triunfo al llegar</label>
+        <p class="muted">Sintetizadores y percusión generados en el navegador, sin grabaciones de terceros.</p>
+      </section>
+    </aside>
+  </main>
+
+  <footer>MAZE LAB · Movimiento en 4 direcciones · Coste base 1 · Múltiples metas</footer>
+  <script src="script.js"></script>
+</body>
+</html>
