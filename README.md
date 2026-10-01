@@ -170,8 +170,11 @@ http://localhost:8000
 
 ## Enlaces
 
-- **Repositorio:** https://github.com/raineragoge/MAZE-LAB
-- **Netlify:** https://mazeprojectlab.netlify.app/
+- **Aplicación publicada en Netlify:** https://mazeprojectlab.netlify.app/
+- **Código fuente en GitHub:** https://github.com/raineragoge/MAZE-LAB
+- **Versión Maze Lab:** https://mazelab.rainer-agoge.chatgpt.site
+
+La aplicación se publica desde la rama `main` del repositorio. Netlify sirve los archivos estáticos desde la raíz del proyecto; `netlify.toml` deja configurado ese directorio.
 
 ## Limitaciones
 
