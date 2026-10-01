@@ -170,7 +170,7 @@ http://localhost:8000
 
 ## Enlaces
 
-- **Aplicación publicada en Netlify:** https://mazeprojectlab.netlify.app/
+- **Aplicación publicada en Netlify:** https://laberintodelfauno.netlify.app/
 - **Código fuente en GitHub:** https://github.com/raineragoge/MAZE-LAB
 - **Versión Maze Lab:** https://mazelab.rainer-agoge.chatgpt.site
 
