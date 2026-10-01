@@ -26,10 +26,20 @@ Avanza todo lo posible por una rama antes de retroceder. Puede encontrar una sol
 Explora primero el camino con menor coste acumulado. Tiene en cuenta los pesos y, con costes no negativos, encuentra una ruta de coste mínimo.
 
 ### A*
-Combina el coste acumulado con una heurística Manhattan que estima la distancia hasta la meta. En este proyecto se mueve solo arriba, abajo, izquierda y derecha.
+
+A* ordena las opciones con una cola de prioridad usando **f(n) = g(n) + h(n)**:
+
+- **g(n)** es el coste real acumulado desde el inicio hasta la casilla actual. Incluye el coste de entrada de las casillas y, al alcanzar una meta, su penalización.
+- **h(n)** estima el coste que falta. Usamos la distancia Manhattan a la meta más cercana: **|fila actual − fila meta| + |columna actual − columna meta|**. Con varias metas se toma la menor distancia.
+- La cola extrae primero la casilla con menor **f(n)**, que combina lo ya pagado con lo que parece faltar.
+
+El movimiento es ortogonal y cada paso cuesta como mínimo 1. La distancia Manhattan ignora obstáculos, pesos adicionales y penalizaciones, así que no sobreestima el coste restante. Con costes no negativos, esta heurística permite que A* encuentre una ruta de coste mínimo. Suele explorar menos casillas que UCS, aunque depende del mapa.
 
 ### Búsqueda bidireccional · mejora extra
 Realiza una búsqueda desde el inicio y otra desde la meta o metas hasta que ambas fronteras se encuentran. Es útil en mapas sin pesos porque puede reducir la profundidad que debe recorrer cada búsqueda. En esta implementación se usa como búsqueda por pasos y **no optimiza costes ponderados**.
+
+### Búsqueda binaria
+La búsqueda binaria encuentra un valor en una lista ordenada dividiendo repetidamente el rango por la mitad. No se aplica al laberinto: sus casillas no forman una lista ordenada y hay que recorrer conexiones con obstáculos y pesos. No debe confundirse con la búsqueda bidireccional.
 
 ## Funcionalidades principales
 
@@ -117,7 +127,7 @@ Se han comprobado los casos obligatorios:
 - **Mapa sin solución:** la búsqueda termina e informa que no existe ruta.
 - **Edición después de ejecutar:** al modificar el tablero y volver a simular, se calcula una nueva solución.
 - **Pausa y continuación:** la simulación continúa desde el mismo punto.
-- **Velocidad:** en el mismo recorrido, a 97 casillas/s la animación tardó 3,7 s y a 200 casillas/s 1,8 s, manteniendo 87 casillas exploradas, 34 pasos y coste 34.
+- **Velocidad:** la barra actual permite entre 1 y 100 casillas/s. En una medición histórica del mismo recorrido, a 97 casillas/s tardó 3,7 s, manteniendo 87 casillas exploradas, 34 pasos y coste 34. El dato de 200 casillas/s pertenece a una versión anterior del control y no es seleccionable ahora.
 - **Búsqueda bidireccional:** se ha añadido como mejora extra y puede seleccionarse desde la interfaz.
 
 ## Estructura del proyecto

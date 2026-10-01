@@ -5,7 +5,7 @@
     bfs: "BFS · Amplitud: explora por capas. Encuentra una ruta con el menor número de pasos cuando cada movimiento cuenta igual, pero no usa los pesos para decidir.",
     dfs: "DFS · Profundidad: avanza todo lo posible por una rama antes de retroceder. Puede encontrar una ruta rápido, pero no garantiza la más corta ni la más barata.",
     ucs: "Coste uniforme · Dijkstra: siempre expande primero el camino acumulado más barato. Con pesos no negativos garantiza el menor coste.",
-    astar: "A* · Heurística: combina el coste acumulado con una estimación Manhattan hasta la meta. Con esta heurística y costes no negativos obtiene un camino óptimo.",
+    astar: "A* · Usa f(n) = g(n) + h(n): g(n) es el coste acumulado y h(n) la distancia Manhattan hasta la meta más cercana. Una cola de prioridad extrae el menor f. Como el movimiento es ortogonal, cada paso cuesta al menos 1 y las penalizaciones de meta no son negativas, h no sobreestima el coste restante y A* obtiene el coste mínimo; suele explorar menos que UCS, según el mapa.",
     bidir: "Búsqueda bidireccional · Mejora extra: ejecuta una búsqueda desde el inicio y otra desde las metas hasta que ambas fronteras se encuentran. Reduce la profundidad de búsqueda en muchos mapas sin pesos, pero no optimiza costes ponderados."
   };
 
