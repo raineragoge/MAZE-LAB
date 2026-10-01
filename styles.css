@@ -30,5 +30,9 @@ body.light .cell{border-color:rgba(0,0,0,.08)}
 .status{padding:8px 10px;border-radius:8px;background:var(--panel2);margin-bottom:8px}.metrics{display:grid;gap:7px}.metrics div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line)}.metrics span{color:var(--muted);font-size:.83rem}
 .ranking{display:grid;gap:6px;margin-top:10px}.rank-row{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px}.rank-row small{color:var(--muted)}
 .right-panel select{width:100%;margin:5px 0 8px}footer{text-align:center;padding:20px;color:var(--muted);font-size:.75rem}
+footer p{margin:0 0 8px}
+footer nav{display:flex;justify-content:center;flex-wrap:wrap;gap:14px}
+footer a{color:var(--accent);text-underline-offset:3px}
+footer a:hover{color:var(--text)}
 @media(max-width:1050px){.layout{grid-template-columns:1fr}.left-panel,.right-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.panel section+section{margin-top:0;padding-top:0;border-top:0}.grid-wrap{max-height:none}}
 @media(max-width:650px){.left-panel,.right-panel{grid-template-columns:1fr}.topbar{padding:14px}.layout{padding:8px}.panel{border-radius:12px}.grid-wrap{aspect-ratio:1}.cell{font-size:9px}}
